@@ -1,4 +1,4 @@
-namespace OrderFlow
+namespace OrderFlow.Models
 {
     public class WeatherForecast
     {
