@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.Authorization;
+
 namespace OrderFlow.Models
 {
     public class WeatherForecast

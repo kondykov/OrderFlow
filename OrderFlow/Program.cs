@@ -1,36 +1,97 @@
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
+using AuthenticationOptions = OrderFlow.Services.Identity.AuthenticationOptions;
 
-namespace OrderFlow
+namespace OrderFlow;
+
+public static class Program
 {
-    public class Program
+    public static void Main(string[] args)
     {
-        public static void Main(string[] args)
+        var builder = WebApplication.CreateBuilder(args);
+
+        builder.Services.AddControllers();
+        builder.Services.AddEndpointsApiExplorer();
+        builder.Services.AddSwaggerGen(option =>
         {
-            var builder = WebApplication.CreateBuilder(args);
-
-            // Add services to the container.
-
-            builder.Services.AddControllers();
-            // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-            builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen();
-
-            var app = builder.Build();
-
-            // Configure the HTTP request pipeline.
-            if (app.Environment.IsDevelopment())
+            option.SwaggerDoc("v1", new OpenApiInfo { Title = "OrderFlow", Version = "v1" });
+            option.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
             {
-                app.UseSwagger();
-                app.UseSwaggerUI();
-            }
+                In = ParameterLocation.Header,
+                Description = "Please enter a valid token",
+                Name = "Authorization",
+                Type = SecuritySchemeType.Http,
+                BearerFormat = "JWT",
+                Scheme = "Bearer"
+            });
+            option.AddSecurityRequirement(new OpenApiSecurityRequirement
+            {
+                {
+                    new OpenApiSecurityScheme
+                    {
+                        Reference = new OpenApiReference
+                        {
+                            Type = ReferenceType.SecurityScheme,
+                            Id = "Bearer"
+                        }
+                    },
+                    []
+                }
+            });
+        });
+        
+        builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
 
-            app.UseHttpsRedirection();
 
-            app.UseAuthorization();
+        builder.Services.AddAuthorization();
+        builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            .AddJwtBearer(options =>
+            {
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidIssuer = AuthenticationOptions.Issuer,
+                    ValidateAudience = true,
+                    ValidAudience = AuthenticationOptions.Audience,
+                    ValidateLifetime = true,
+                    IssuerSigningKey = AuthenticationOptions.GetSymmetricSecurityKey(),
+                    ValidateIssuerSigningKey = true
+                };
+                options.Events = new JwtBearerEvents
+                {
+                    OnChallenge = async context =>
+                    {
+                        context.Response.ContentType = "application/json";
+                        context.Response.Headers.AccessControlAllowOrigin = "*";
+                        context.Response.StatusCode = 401;
+                        await context.Response.WriteAsync("""
+                                                          {
+                                                          ""Errors"": ""Unauthorized."" 
+                                                          }
+                                                          """);
+                    },
+                    OnMessageReceived = context =>
+                    {
+                        context.Token = context.Request.Cookies["JWTCookie"];
+                        return Task.CompletedTask;
+                    }
+                };
+            });
 
+        var app = builder.Build();
 
-            app.MapControllers();
-
-            app.Run();
+        if (app.Environment.IsDevelopment())
+        {
+            app.UseSwagger();
+            app.UseSwaggerUI();
         }
+
+        app.UseHttpsRedirection();
+        app.UseAuthentication();
+        app.UseAuthorization();
+        app.MapControllers();
+        app.Run();
     }
 }
