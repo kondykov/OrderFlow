@@ -1,7 +1,9 @@
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using OrderFlow.Data;
 using AuthenticationOptions = OrderFlow.Services.Identity.AuthenticationOptions;
 
 namespace OrderFlow;
@@ -14,6 +16,12 @@ public static class Program
 
         builder.Services.AddControllers();
         builder.Services.AddEndpointsApiExplorer();
+
+        builder.Services.AddDbContext<DataContext>(opt =>
+            opt.UseNpgsql(builder.Configuration.GetConnectionString("PostgresSQL") ?? string.Empty));
+
+        builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
+
         builder.Services.AddSwaggerGen(option =>
         {
             option.SwaggerDoc("v1", new OpenApiInfo { Title = "OrderFlow", Version = "v1" });
@@ -41,7 +49,7 @@ public static class Program
                 }
             });
         });
-        
+
         builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
 
 
