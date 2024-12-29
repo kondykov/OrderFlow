@@ -11,23 +11,12 @@ public class IdentityController(DataContext context) : Controller
     [HttpPost]
     public IActionResult Authorize([FromBody] RequestAuthMessage message)
     {
-        if (!ModelState.IsValid) return BadRequest(ModelState);
-        if (!new EmailValidator().Validate(message.Username))
-            return BadRequest();
-
-
-        return Ok(context.Users.FirstOrDefault(u => u.UserName == message.Username));
+        return Ok();
     }
 
     [HttpPost]
     public IActionResult Register([FromBody] RequestAuthMessage message)
     {
-        var u = new ApplicationUser
-        {
-            UserName = message.Username
-        };
-        context.Users.Add(u);
-        context.SaveChanges();
-        return Ok(u);
+        return Ok();
     }
 }
