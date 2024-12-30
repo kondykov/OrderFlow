@@ -1,10 +1,12 @@
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using OrderFlow.Data;
-using AuthenticationOptions = OrderFlow.Services.Identity.AuthenticationOptions;
+using OrderFlow.Infrastructure.Identity;
+using OrderFlow.Infrastructure.Persistence.Identity;
+using OrderFlow.Infrastructure.Security;
+using OrderFlow.Services.Identity;
 
 namespace OrderFlow;
 
@@ -15,13 +17,53 @@ public static class Program
         var builder = WebApplication.CreateBuilder(args);
 
         builder.Services.AddControllers();
+        builder.Services.AddControllers().AddNewtonsoftJson();
         builder.Services.AddEndpointsApiExplorer();
 
         builder.Services.AddDbContext<DataContext>(opt =>
             opt.UseNpgsql(builder.Configuration.GetConnectionString("PostgresSQL") ?? string.Empty));
 
         builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
+        builder.Services.AddScoped<IAccountRepository, AccountRepository>();
+        builder.Services.AddScoped<IRoleRepository, RoleRepository>();
+        builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
 
+        builder.Services.AddAuthorization();
+        builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            .AddJwtBearer(options =>
+            {
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidIssuer = AuthenticationOptions.Issuer,
+                    ValidateAudience = true,
+                    ValidAudience = AuthenticationOptions.Audience,
+                    ValidateLifetime = true,
+                    IssuerSigningKey = AuthenticationOptions.GetSymmetricSecurityKey(),
+                    ValidateIssuerSigningKey = true
+                };
+                options.Events = new JwtBearerEvents
+                {
+                    OnChallenge = async context =>
+                    {
+                        context.Response.ContentType = "application/json";
+                        context.Response.Headers.AccessControlAllowOrigin = "*";
+                        context.Response.StatusCode = 401;
+                        await context.Response.WriteAsync("""
+                                                          {
+                                                          "Errors": "Unauthorized." 
+                                                          }
+                                                          """);
+                    },
+                    OnMessageReceived = context =>
+                    {
+                        context.Token = context.Request.Cookies["JWTCookie"];
+                        return Task.CompletedTask;
+                    }
+                };
+            });
+        
+        builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen(option =>
         {
             option.SwaggerDoc("v1", new OpenApiInfo { Title = "OrderFlow", Version = "v1" });
@@ -49,44 +91,6 @@ public static class Program
                 }
             });
         });
-
-        builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
-
-
-        builder.Services.AddAuthorization();
-        builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-            .AddJwtBearer(options =>
-            {
-                options.TokenValidationParameters = new TokenValidationParameters
-                {
-                    ValidateIssuer = true,
-                    ValidIssuer = AuthenticationOptions.Issuer,
-                    ValidateAudience = true,
-                    ValidAudience = AuthenticationOptions.Audience,
-                    ValidateLifetime = true,
-                    IssuerSigningKey = AuthenticationOptions.GetSymmetricSecurityKey(),
-                    ValidateIssuerSigningKey = true
-                };
-                options.Events = new JwtBearerEvents
-                {
-                    OnChallenge = async context =>
-                    {
-                        context.Response.ContentType = "application/json";
-                        context.Response.Headers.AccessControlAllowOrigin = "*";
-                        context.Response.StatusCode = 401;
-                        await context.Response.WriteAsync("""
-                                                          {
-                                                          ""Errors"": ""Unauthorized."" 
-                                                          }
-                                                          """);
-                    },
-                    OnMessageReceived = context =>
-                    {
-                        context.Token = context.Request.Cookies["JWTCookie"];
-                        return Task.CompletedTask;
-                    }
-                };
-            });
 
         var app = builder.Build();
 

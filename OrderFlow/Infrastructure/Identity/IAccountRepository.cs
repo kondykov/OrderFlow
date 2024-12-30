@@ -1,12 +1,15 @@
-﻿using OrderFlow.Models.Identity;
+﻿using OrderFlow.Data.Entities.Identity;
+using OrderFlow.Models;
+using OrderFlow.Models.Identity;
 
 namespace OrderFlow.Infrastructure.Identity;
 
 public interface IAccountRepository
 {
-    public void Save(ApplicationUser user);
-    public ApplicationUser FindByEmail(string email);
-    public ApplicationUser FindByUsername(string username);
-    
-    public List<ApplicationUser> GetAll();
+    public Task<OperationResult<ApplicationUser>> CreateAsync(ApplicationUser? user);
+    public Task<OperationResult<ApplicationUser>> FindByEmailAsync(string email);
+    public Task<OperationResult<ApplicationUser>> FindByUsernameAsync(string username);
+    public Task<OperationResult<ApplicationUser>> FindByRefreshTokenAsync(string refreshToken);
+    public Task<OperationResult<ApplicationUser>> SaveAsync(ApplicationUser user);
+    public Task<OperationResult<List<ApplicationUser?>>> GetAllAsync();
 }
