@@ -77,7 +77,7 @@ public class IdentityController(
         if (!roleByCode.IsSuccessful)
             return BadRequest(new ResponseMessage("Account type already exists"));
 
-        roleRepository.AddRoleAsync(new Role
+        await roleRepository.AddRoleAsync(new Role
         {
             Code = type.Code,
             Name = type.Name
