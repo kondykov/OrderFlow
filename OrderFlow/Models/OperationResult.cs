@@ -2,8 +2,8 @@
 
 public class OperationResult<T>
 {
-    public T? Data { get; init; }
-    public int? StatusCode { get; init; }
-    public string? ErrorMessage { get; init; }
-    public bool IsSuccessful => ErrorMessage == null;
+    public virtual T? Data { get; init; }
+    public virtual string? DataMessage { get; init; }
+    public virtual string? ErrorMessage { get; init; }
+    public virtual bool IsSuccessful => ErrorMessage == null;
 }

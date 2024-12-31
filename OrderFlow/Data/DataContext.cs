@@ -1,11 +1,10 @@
-﻿using Microsoft.EntityFrameworkCore;
-using OrderFlow.Data.Entities.Identity;
-using OrderFlow.Infrastructure.Identity;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using OrderFlow.Models.Identity;
 
 namespace OrderFlow.Data;
 
-public sealed class DataContext : DbContext
+public sealed class DataContext : IdentityDbContext<ApplicationUser, ApplicationRole, string>
 {
     public DataContext(DbContextOptions<DataContext> options) : base(options)
     {
@@ -13,5 +12,4 @@ public sealed class DataContext : DbContext
     }
 
     public DbSet<ApplicationUser> Users { get; set; }
-    public DbSet<Role> AccountTypes { get; set; }
 }

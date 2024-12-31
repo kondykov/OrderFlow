@@ -1,6 +1,6 @@
-﻿namespace OrderFlow.Models.Identity.Messages.Response;
+﻿namespace OrderFlow.Models.Identity.Messages;
 
-public class ResponseAuthMessage : ResponseMessage
+public class AuthResponseModel
 {
     public string AccessToken { get; set; }
     public string? AccessTokenExpiresIn { get; set; }
