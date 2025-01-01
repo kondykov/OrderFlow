@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 using OrderFlow.Models.Identity;
+using OrderFlow.Models.Identity.Roles;
 
 namespace OrderFlow.Services;
 
@@ -11,11 +12,16 @@ public static class Initializer
         var roleManager = serviceProvider.GetRequiredService<RoleManager<ApplicationRole>>();
         var userManager = serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
 
-        string[] roleNames = ["Admin", "User"];
-        foreach (var roleName in roleNames)
+        var roles = new List<ApplicationRole>()
         {
-            var roleExist = await roleManager.RoleExistsAsync(roleName);
-            if (!roleExist) await roleManager.CreateAsync(new ApplicationRole { Name = roleName });
+            new User(),
+            new Admin(),
+        };
+        
+        foreach (var role in roles)
+        {
+            var roleExist = await roleManager.RoleExistsAsync(role.ToString());
+            if (!roleExist) await roleManager.CreateAsync(role);
         }
 
         var poweruser = new ApplicationUser
@@ -30,7 +36,7 @@ public static class Initializer
         if (existingUser == null)
         {
             var createPowerUser = await userManager.CreateAsync(poweruser, userPWD);
-            if (createPowerUser.Succeeded) await userManager.AddToRoleAsync(poweruser, "Admin");
+            if (createPowerUser.Succeeded) await userManager.AddToRoleAsync(poweruser, new Admin().ToString());
         }
     }
 }

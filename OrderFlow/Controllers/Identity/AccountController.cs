@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using OrderFlow.Models.Identity;
 using OrderFlow.Models.Identity.Messages;
+using OrderFlow.Models.Identity.Roles;
 using OrderFlow.Services.Security;
 
 namespace OrderFlow.Controllers.Identity;
@@ -51,12 +52,23 @@ public class AccountController(
     }
 
     [HttpPost]
-    public async Task<IActionResult> Logout([FromBody] string token)
+    [Authorize]
+    public async Task<IActionResult> Logout()
     {
-        if (string.IsNullOrEmpty(token)) return BadRequest("Token is required.");
+        var user = await userManager.FindByNameAsync(User.Identity!.Name!);
+        var token = HttpContext.Request.Headers.Authorization.ToString().Replace("Bearer ", string.Empty);
         RevokedTokens[token] = (true, DateTime.UtcNow);
         _ = revokedTokenCleanupService.StartAsync(RevokedTokensCts);
         return NoContent();
+    }
+
+    [HttpPost]
+    [Authorize(Roles = (nameof(Admin)))]
+    public async Task<IActionResult> ChangeRole([FromBody] ChangeRoleRequestModel model)
+    {
+        var user = await userManager.GetUserAsync(User);
+        var role = await userManager.GetRolesAsync(user!);
+        return Ok();
     }
 
     public override void OnActionExecuting(ActionExecutingContext context)
