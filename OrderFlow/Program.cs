@@ -13,7 +13,7 @@ namespace OrderFlow;
 
 public static class Program
 {
-    public static void Main(string[] args)
+    public static async Task Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
 
@@ -114,7 +114,7 @@ public static class Program
         }
 
 
-        _ = Initializer.InitializeRolesAndUsers(app.Services);
+        await Initializer.InitializeRolesAndUsers(app.Services);
 
         app.UseHttpsRedirection();
         app.UseAuthentication();

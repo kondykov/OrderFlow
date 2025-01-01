@@ -4,5 +4,5 @@ namespace OrderFlow.Models.Identity;
 
 public class ApplicationRole : IdentityRole
 {
-    
+
 }

@@ -3,5 +3,5 @@
 public class User : ApplicationRole
 {
     public override string? Name { get; set; } = "User";
-    public override string? NormalizedName => "User";
+    public override string? NormalizedName => "USER";
 }

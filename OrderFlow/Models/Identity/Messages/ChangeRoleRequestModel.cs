@@ -2,5 +2,6 @@
 
 public class ChangeRoleRequestModel
 {
+    public required string UserEmail { get; set; }
     public required string RoleName { get; set; }
 }
