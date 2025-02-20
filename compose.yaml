@@ -1,0 +1,6 @@
+﻿services:
+  orderflow:
+    image: orderflow
+    build:
+      context: .
+      dockerfile: OrderFlow/Dockerfile
