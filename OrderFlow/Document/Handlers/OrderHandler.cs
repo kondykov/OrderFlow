@@ -26,6 +26,7 @@ public class OrderHandler(
 
     public async Task<OperationResult<Order>> Update(UpdateOrderRequest request)
     {
+        // TODO: Реализовать разрешения для ролей и обновить здесь проверку
         if (!await userService.HasAnyRoleAsync([new Admin()]))
             return new OperationResult<Order>()
             {
@@ -40,6 +41,14 @@ public class OrderHandler(
                 StatusCode = 404,
                 Error = "Order not found!"
             };
+
+        if (order.Data.Status is OrderStatus.Completed or OrderStatus.Canceled)
+            return new OperationResult<Order>()
+            {
+                StatusCode = 400,
+                Error = "Order is cancelled or completed!",
+            };
+        
         if (Enum.TryParse<OrderStatus>(request.Status, true, out var orderStatus)) order.Data.Status = orderStatus;
         else
             return new OperationResult<Order>
