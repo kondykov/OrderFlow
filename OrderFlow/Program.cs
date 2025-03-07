@@ -37,6 +37,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+// TODO: Для использования данного посредника нужно реализовать отправку письма на почту
+// app.UseMiddleware<AccountConfirmationMiddleware>();
 
 app.UseHttpsRedirection();
 app.UseAuthentication();

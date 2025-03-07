@@ -1,8 +1,6 @@
-﻿using Microsoft.AspNetCore.Identity;
-using OrderFlow.Document.Models;
+﻿using OrderFlow.Document.Models;
 using OrderFlow.Document.Models.Request;
 using OrderFlow.Document.Repositories;
-using OrderFlow.Identity.Models;
 using OrderFlow.Identity.Models.Roles;
 using OrderFlow.Identity.Services;
 using OrderFlow.Models;
@@ -16,6 +14,12 @@ public class OrderHandler(
 {
     public async Task<OperationResult<Order>> Create()
     {
+        if (!await userService.HasRoleAsync(new Terminal()))
+            return new OperationResult<Order>
+            {
+                StatusCode = 403,
+                Error = "Вам недостаточно привилегий для создания заказа"
+            };
         return await repository.CreateAsync();
     }
 
@@ -26,37 +30,47 @@ public class OrderHandler(
 
     public async Task<OperationResult<Order>> Update(UpdateOrderRequest request)
     {
-        // TODO: Реализовать разрешения для ролей и обновить здесь проверку
-        if (!await userService.HasAnyRoleAsync([new Admin()]))
-            return new OperationResult<Order>()
+        if (!await userService.HasRoleAsync(new Manager()))
+            return new OperationResult<Order>
             {
                 StatusCode = 403,
-                Error = "You do not have permission to update this order",
+                Error = "Вам недостаточно привилегий для обновления заказа"
             };
-        
-        var order = await repository.GetByIdAsync(request.OrderId);
-        if (!order.IsSuccessful)
+
+        var orderOperationResult = await repository.GetByIdAsync(request.OrderId);
+        if (!orderOperationResult.IsSuccessful)
             return new OperationResult<Order>
             {
                 StatusCode = 404,
-                Error = "Order not found!"
+                Error = "Заказ не найден"
             };
 
-        if (order.Data.Status is OrderStatus.Completed or OrderStatus.Canceled)
-            return new OperationResult<Order>()
+        if (orderOperationResult.Data.Status is OrderStatus.Canceled)
+            return new OperationResult<Order>
             {
                 StatusCode = 400,
-                Error = "Order is cancelled or completed!",
+                Error = "Вы не можете изменить статус отменённого заказа заказа"
             };
-        
-        if (Enum.TryParse<OrderStatus>(request.Status, true, out var orderStatus)) order.Data.Status = orderStatus;
+
+        if (Enum.TryParse<OrderStatus>(request.Status, true, out var orderStatus))
+        {
+            if (orderOperationResult.Data.Status is OrderStatus.Canceled)
+                return new OperationResult<Order>
+                {
+                    StatusCode = 403,
+                    Error = "Невозможно изменить статус отменённого заказа"
+                };
+            orderOperationResult.Data.Status = orderStatus;
+        }
         else
+        {
             return new OperationResult<Order>
             {
                 StatusCode = 422,
-                Error = "Invalid status!"
+                Error = "Передан неверный статус"
             };
+        }
 
-        return await repository.UpdateAsync(order.Data);
+        return await repository.UpdateAsync(orderOperationResult.Data);
     }
 }

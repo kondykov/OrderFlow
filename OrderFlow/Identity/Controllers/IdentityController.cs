@@ -1,9 +1,6 @@
-﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using OrderFlow.Identity.Handlers;
-using OrderFlow.Identity.Models;
 using OrderFlow.Identity.Models.Request;
-using OrderFlow.Models;
 
 namespace OrderFlow.Identity.Controllers;
 
@@ -24,15 +21,5 @@ public class IdentityController(AuthenticationHandler handler) : Controller
         if (!ModelState.IsValid) return UnprocessableEntity(ModelState);
         var operationResult = await handler.RegisterAsync(model);
         return StatusCode(operationResult.StatusCode, operationResult);
-    }
-
-    [HttpGet("verify")]
-    public async Task<IActionResult> Verify()
-    {
-        return Ok(new OperationResult<string>
-        {
-            Data = "True",
-            StatusCode = 200,
-        });
     }
 }

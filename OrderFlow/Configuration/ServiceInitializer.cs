@@ -1,6 +1,4 @@
-﻿using System.Text.Json;
-using System.Text.Json.Serialization;
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 using OrderFlow.Data;
 using OrderFlow.Data.Seeders;
 using OrderFlow.Document.Handlers;

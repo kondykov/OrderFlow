@@ -14,7 +14,7 @@ public class OrderItemHandler(
 {
     public async Task<OperationResult<OrderItem>> CreateOrUpdateOrderItem(CreateOrderItemRequest request)
     {
-        validator.Validate(request.Quantity, quantity => quantity > 0, "Quantity must be greater than zero");
+        validator.Validate(request.Quantity, quantity => quantity < 0, "Количество не может быть меньше 0");
 
         if (!validator.IsValid())
             return new OperationResult<OrderItem>

@@ -4,41 +4,41 @@ using OrderFlow.Identity.Models;
 
 namespace OrderFlow.Identity.Services;
 
-public class UserService(IHttpContextAccessor httpContextAccessor, UserManager<User> manager)
+public class UserService(
+    IHttpContextAccessor httpContextAccessor,
+    UserManager<User> userManager,
+    RoleManager<Role> roleManager
+)
 {
-    public async Task<User> GetCurrentUser()
+    public async Task<User> GetCurrentUserAsync()
     {
         var claimsPrincipal = httpContextAccessor.HttpContext?.User;
         if (claimsPrincipal == null || !claimsPrincipal.Identity.IsAuthenticated)
             throw new UnauthorizedAccessException();
         var userId = claimsPrincipal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        return await manager.FindByIdAsync(userId);
+        return await userManager.FindByIdAsync(userId);
     }
 
-    public async Task<bool> HasRoleAsync(Role role)
+    public async Task<bool> HasRoleAsync(Role? role)
     {
-        var user = await GetCurrentUser();
-        var roles = await manager.GetRolesAsync(user);
-        return roles.Contains(role.ToString());
-    }
-
-    public async Task<bool> HasAnyRoleAsync(List<Role> roles)
-    {
-        foreach (var role in roles)
+        var user = await GetCurrentUserAsync();
+        var roles = await userManager.GetRolesAsync(user);
+        if (roles.Contains(role!.ToString())) return true;
+        role = await roleManager.FindByNameAsync(role.ToString());
+        while (role != null)
         {
-            var result = await HasRoleAsync(role);
-            if (result) return true;
+            if (roles.Contains(role.Name)) return true;
+            role = await roleManager.FindByIdAsync(role.ParentRole!);
         }
+
         return false;
     }
-    
-    public async Task<bool> HasAllRolesAsync(List<Role> roles)
+
+    public async Task<bool> HasRoleAsync(List<Role> roles)
     {
         foreach (var role in roles)
-        {
-            var result = await HasRoleAsync(role);
-            if (!result) return false;
-        }
-        return true;
+            if (await HasRoleAsync(role))
+                return true;
+        return false;
     }
 }

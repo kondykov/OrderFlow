@@ -15,7 +15,7 @@ public class ProductController(
     [Route("create")]
     public async Task<IActionResult> Create([FromBody] CreateProductRequest request)
     {
-        if (!ModelState.IsValid) return UnprocessableEntity("Unprocessable entity");
+        if (!ModelState.IsValid) return UnprocessableEntity($"Необрабатываемая сущность: {ModelState}");
         var operationResult = await productHandler.Create(request);
         return StatusCode(operationResult.StatusCode, operationResult);
     }
@@ -24,7 +24,7 @@ public class ProductController(
     [Route("update")]
     public async Task<IActionResult> Update([FromBody] UpdateProductRequest request)
     {
-        if (!ModelState.IsValid) return UnprocessableEntity("Unprocessable entity");
+        if (!ModelState.IsValid) return UnprocessableEntity($"Необрабатываемая сущность: {ModelState}");
         var operationResult = await productHandler.Update(request);
         return StatusCode(operationResult.StatusCode, operationResult);
     }

@@ -18,7 +18,7 @@ public class AuthenticationHandler(
         if (user == null)
             return new OperationResult<AuthenticationResponse>
             {
-                Error = "User does not exist",
+                Error = "Пользователь не найден",
                 StatusCode = 404
             };
         var passwordVerificationResult = passwordHasher.VerifyHashedPassword(user, user.PasswordHash, request.Password);
@@ -26,7 +26,7 @@ public class AuthenticationHandler(
         if (passwordVerificationResult == PasswordVerificationResult.Failed)
             return new OperationResult<AuthenticationResponse>
             {
-                Error = "Invalid credentials",
+                Error = "Пароль неверен",
                 StatusCode = 400
             };
 
@@ -36,7 +36,7 @@ public class AuthenticationHandler(
             {
                 AccessToken = service.GenerateJwtToken(user)
             },
-            StatusCode = 200    
+            StatusCode = 200
         };
     }
 
@@ -46,7 +46,7 @@ public class AuthenticationHandler(
         if (userExists != null)
             return new OperationResult<string>
             {
-                Error = "User already exists",
+                Error = "Такой пользователь уже существует",
                 StatusCode = 409
             };
 
@@ -59,13 +59,13 @@ public class AuthenticationHandler(
         if (user.Succeeded)
             return new OperationResult<string>
             {
-                Data = "User created successfully",
+                Data = "Пользователь зарегистрирован",
                 StatusCode = 202
             };
-        
+
         return new OperationResult<string>
         {
-            Error = "Credentials incorrect or creating user is failed",
+            Error = "Переданы некорректные данный или произошла внутренняя ошибка",
             StatusCode = 400
         };
     }

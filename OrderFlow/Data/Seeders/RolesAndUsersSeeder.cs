@@ -14,7 +14,11 @@ public class RolesAndUsersSeeder : IDataSeeder
 
         var roles = new List<Role>
         {
-            new Admin()
+            new Admin(),
+            new Manager(),
+            new Employee(),
+            new Terminal(),
+            new Client(),
         };
         foreach (var role in roles)
         {

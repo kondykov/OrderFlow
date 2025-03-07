@@ -13,7 +13,7 @@ public class OrderItemRepository(DataContext context) : IOrderItemRepository
             {
                 Data = orderItem,
                 StatusCode = 400,
-                Error = "Order is not opened."
+                Error = "Добавить строку заказа можно только в открытый заказ"
             };
 
         var existsOrderItem =
@@ -37,7 +37,7 @@ public class OrderItemRepository(DataContext context) : IOrderItemRepository
             {
                 Data = orderItem,
                 StatusCode = 400,
-                Error = "Order is not opened."
+                Error = "Обновить строку заказа можно только в открытом заказе"
             };
 
         context.OrderItems.Update(orderItem);
@@ -67,7 +67,7 @@ public class OrderItemRepository(DataContext context) : IOrderItemRepository
             return new OperationResult<OrderItem>
             {
                 StatusCode = 404,
-                Error = "Order item does not exist."
+                Error = "Строка заказа не найдена"
             };
 
         return new OperationResult<OrderItem>
@@ -84,7 +84,7 @@ public class OrderItemRepository(DataContext context) : IOrderItemRepository
             return new OperationResult<OrderItem>
             {
                 StatusCode = 404,
-                Error = "Order item does not exist."
+                Error = "Строка заказа не найдена"
             };
 
         return new OperationResult<OrderItem>

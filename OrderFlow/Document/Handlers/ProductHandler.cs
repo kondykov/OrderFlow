@@ -9,9 +9,9 @@ public class ProductHandler(Validator validator, IProductRepository repository)
 {
     public async Task<OperationResult<Models.Product>> Create(CreateProductRequest request)
     {
-        validator.Validate(request.Price, price => price > 0, "Price must be greater than zero")
-            .Validate(request.Article, article => !string.IsNullOrEmpty(article), "Article cannot be null")
-            .Validate(request.Title, title => !string.IsNullOrEmpty(title), "Title cannot be null");
+        validator.Validate(request.Price, price => price >= 1, "Цена не может быть меньше 1")
+            .Validate(request.Article, article => !string.IsNullOrEmpty(article), "Артикул не может быть пустым")
+            .Validate(request.Title, title => !string.IsNullOrEmpty(title), "Заголовок не может быть пустым");
 
         if (!validator.IsValid())
             return new OperationResult<Models.Product>
@@ -25,9 +25,9 @@ public class ProductHandler(Validator validator, IProductRepository repository)
 
     public async Task<OperationResult<Models.Product>> Update(UpdateProductRequest request)
     {
-        validator.Validate(request.Price, price => price > 0, "Price must be greater than zero")
-            .Validate(request.Article, article => !string.IsNullOrEmpty(article), "Article cannot be null")
-            .Validate(request.Title, title => !string.IsNullOrEmpty(title), "Title cannot be null");
+        validator.Validate(request.Price, price => price >= 1, "Цена не может быть меньше 1")
+            .Validate(request.Article, article => !string.IsNullOrEmpty(article), "Артикул не может быть пустым")
+            .Validate(request.Title, title => !string.IsNullOrEmpty(title), "Заголовок не может быть пустым");
 
         if (!validator.IsValid())
             return new OperationResult<Models.Product>
@@ -53,8 +53,8 @@ public class ProductHandler(Validator validator, IProductRepository repository)
         if (request.Id > 0) return await repository.GetProductById(request.Id);
         return new OperationResult<Models.Product>
         {
-            Error = "Unprocessable entity",
-            StatusCode = 422
+            Error = "Заказ не найден",
+            StatusCode = 404
         };
     }
 

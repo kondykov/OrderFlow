@@ -13,7 +13,7 @@ public class ProductRepository(DataContext context) : IProductRepository
         if (productExists.IsSuccessful)
             return new OperationResult<Product>
             {
-                Error = "Product article already exists",
+                Error = "Артикул уже существует",
                 StatusCode = 409
             };
 
@@ -37,7 +37,7 @@ public class ProductRepository(DataContext context) : IProductRepository
         if (!productExists.IsSuccessful)
             return new OperationResult<Product>
             {
-                Error = "Product article does not exist",
+                Error = "Искомый артикул не найден",
                 StatusCode = 404
             };
         context.Products.Update(product);
@@ -60,7 +60,7 @@ public class ProductRepository(DataContext context) : IProductRepository
             }
             : new OperationResult<Product>
             {
-                Error = "Product not found",
+                Error = "Продукт не найден",
                 StatusCode = 404
             };
     }
@@ -76,7 +76,7 @@ public class ProductRepository(DataContext context) : IProductRepository
             }
             : new OperationResult<Product>
             {
-                Error = "Product not found",
+                Error = "Продукт не найден",
                 StatusCode = 404
             };
     }
@@ -96,7 +96,7 @@ public class ProductRepository(DataContext context) : IProductRepository
         if (product == null)
             return new OperationResult<string>
             {
-                Error = "Product not found",
+                Error = "Продукт не найден",
                 StatusCode = 404
             };
         context.Products.Remove(product);

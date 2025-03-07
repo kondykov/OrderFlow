@@ -38,7 +38,7 @@ public class OrderRepository(DataContext context) : IOrderRepository
             return new OperationResult<Order>
             {
                 StatusCode = 404,
-                Error = "Order not found"
+                Error = "Заказ не найден"
             };
         
         return new OperationResult<Order>
