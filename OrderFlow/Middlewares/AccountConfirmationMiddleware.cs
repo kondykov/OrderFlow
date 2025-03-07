@@ -7,7 +7,7 @@ namespace OrderFlow.Middlewares;
 
 public class AccountConfirmationMiddleware(RequestDelegate next, UserService service)
 {
-    public async Task InvokeAsync(HttpContext context, UserManager<User> userManager)
+    public async Task InvokeAsync(HttpContext context)
     {
         if (context.User.Identity.IsAuthenticated)
         {
