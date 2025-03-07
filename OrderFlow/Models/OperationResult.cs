@@ -1,15 +1,11 @@
-﻿namespace OrderFlow.Models;
+﻿using Newtonsoft.Json;
+
+namespace OrderFlow.Models;
 
 public class OperationResult<T>
 {
     public T? Data { get; init; }
+    public required int StatusCode { get; init; }
     public string? Error { get; init; }
-    public bool IsSuccessful => Error == null;
-}
-
-public class OperationResult<T, TE>
-{
-    public T? Data { get; init; }
-    public TE? Error { get; init; }
-    public bool IsSuccessful => Error == null;
+    [JsonProperty("is_successful")] public bool IsSuccessful => Error == null;
 }

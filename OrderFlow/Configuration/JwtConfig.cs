@@ -43,6 +43,7 @@ public class JwtConfig(IConfiguration config)
                         await context.Response.WriteAsync(JsonConvert.SerializeObject(new OperationResult<string>()
                         {
                             Error = "Unauthorized",
+                            StatusCode = 401
                         }));
                     },
                     OnMessageReceived = context =>

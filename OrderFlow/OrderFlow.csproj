@@ -35,13 +35,4 @@
       </Content>
     </ItemGroup>
 
-    <ItemGroup>
-      <Folder Include="base\Controllers\" />
-      <Folder Include="base\DTOs\" />
-      <Folder Include="base\Handlers\" />
-      <Folder Include="base\Models\" />
-      <Folder Include="base\Repositories\" />
-      <Folder Include="base\Services\" />
-    </ItemGroup>
-
 </Project>

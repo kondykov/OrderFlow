@@ -18,14 +18,16 @@ public class AuthenticationHandler(
         if (user == null)
             return new OperationResult<AuthenticationResponse>
             {
-                Error = "User does not exist"
+                Error = "User does not exist",
+                StatusCode = 404
             };
         var passwordVerificationResult = passwordHasher.VerifyHashedPassword(user, user.PasswordHash, request.Password);
 
         if (passwordVerificationResult == PasswordVerificationResult.Failed)
             return new OperationResult<AuthenticationResponse>
             {
-                Error = "Invalid credentials"
+                Error = "Invalid credentials",
+                StatusCode = 400
             };
 
         return new OperationResult<AuthenticationResponse>
@@ -33,7 +35,8 @@ public class AuthenticationHandler(
             Data = new AuthenticationResponse
             {
                 AccessToken = service.GenerateJwtToken(user)
-            }
+            },
+            StatusCode = 200    
         };
     }
 
@@ -43,7 +46,8 @@ public class AuthenticationHandler(
         if (userExists != null)
             return new OperationResult<string>
             {
-                Error = "User already exists"
+                Error = "User already exists",
+                StatusCode = 409
             };
 
         var user = await userManager.CreateAsync(new User
@@ -55,12 +59,14 @@ public class AuthenticationHandler(
         if (user.Succeeded)
             return new OperationResult<string>
             {
-                Data = "User created successfully"
+                Data = "User created successfully",
+                StatusCode = 202
             };
         
         return new OperationResult<string>
         {
-            Error = "Credentials incorrect or creating user is failed"
+            Error = "Credentials incorrect or creating user is failed",
+            StatusCode = 400
         };
     }
 }

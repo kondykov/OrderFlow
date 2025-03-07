@@ -15,8 +15,7 @@ public class IdentityController(AuthenticationHandler handler) : Controller
     {
         if (!ModelState.IsValid) return UnprocessableEntity(ModelState);
         var operationResult = await handler.LoginAsync(model);
-        if (!operationResult.IsSuccessful) return BadRequest(operationResult);
-        return Ok(operationResult);
+        return StatusCode(operationResult.StatusCode, operationResult);
     }
 
     [HttpPost("register")]
@@ -24,8 +23,7 @@ public class IdentityController(AuthenticationHandler handler) : Controller
     {
         if (!ModelState.IsValid) return UnprocessableEntity(ModelState);
         var operationResult = await handler.RegisterAsync(model);
-        if (!operationResult.IsSuccessful) return BadRequest(operationResult);
-        return Ok(operationResult);
+        return StatusCode(operationResult.StatusCode, operationResult);
     }
 
     [HttpGet("verify")]
@@ -33,7 +31,8 @@ public class IdentityController(AuthenticationHandler handler) : Controller
     {
         return Ok(new OperationResult<string>
         {
-            Data = $"True"
+            Data = "True",
+            StatusCode = 200,
         });
     }
 }
